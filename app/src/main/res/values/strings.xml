@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">WotStat</string>
+    <string name="enter_nickname">введите ник игрока</string>
+</resources>
