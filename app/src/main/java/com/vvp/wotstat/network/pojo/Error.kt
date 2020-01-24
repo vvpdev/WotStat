@@ -1,4 +1,4 @@
-package com.vvp.wotstat.network.pojo.idUser
+package com.vvp.wotstat.network.pojo
 
 import com.google.gson.annotations.Expose
 
@@ -19,6 +19,5 @@ class Error {
     @SerializedName("value")
     @Expose
     var value: String? = null
-
 
 }

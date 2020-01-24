@@ -3,4 +3,15 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+
+
+    <!-- цвета для отображения статистики игрока  -->
+    <color name="black_stat">#C30A0A0A</color>
+    <color name="red_stat">#ff0000</color>
+    <color name="dark_yellow_stat">#ffa600</color>
+    <color name="yellow_stat">#CACA33</color>
+    <color name="green_stat">#008100</color>
+    <color name="blue_stat">#12C5B5</color>
+    <color name="purple_stat">#ee81ee</color>
+
 </resources>

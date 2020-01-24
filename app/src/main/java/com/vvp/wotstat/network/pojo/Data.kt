@@ -1,11 +1,11 @@
-package com.vvp.wotstat.network.pojo.idUser
+package com.vvp.wotstat.network.pojo
 
 import com.google.gson.annotations.Expose
 
 import com.google.gson.annotations.SerializedName
 
 
-class Datum {
+class Data {
 
     @SerializedName("nickname")
     @Expose
@@ -13,4 +13,5 @@ class Datum {
     @SerializedName("account_id")
     @Expose
     var accountId: Int? = null
+
 }

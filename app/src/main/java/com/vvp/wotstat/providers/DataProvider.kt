@@ -1,48 +1,49 @@
 package com.vvp.wotstat.providers
 
 import android.util.Log
-import com.vvp.wotstat.network.pojo.idUser.Datum
+import com.google.gson.Gson
+import com.vvp.wotstat.model.Player
+import com.vvp.wotstat.network.pojo.All
 import com.vvp.wotstat.network.retrofit.RetrofitFactory
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import org.json.JSONObject
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 
 class DataProvider {
 
-
     // получение Id игрока по никнейму
-
-    // если вернуть из корутины - то тип Deferred обязателен
-    suspend fun getIdUser(name: String):  Deferred<ArrayList<Datum>> {
+    suspend fun getIdUserAsync(name: String):  Deferred<ArrayList<Player>> {
 
         return CoroutineScope(Dispatchers.IO).async {
 
-            val arrayListDatum: ArrayList<Datum> = ArrayList()
+            val arrayListPlayers: ArrayList<Player> = ArrayList()
 
             try {
 
-                val response = RetrofitFactory.getApiService()
+                val response = RetrofitFactory.getApiService().getIdUser(name)
 
-                if (response.getIdUser(name = name).isSuccessful) {
-                    val model = response.getIdUser(name = name).body()
+                if (response.isSuccessful) {
 
-                    when (model!!.status) {
+                    val dataFromResponse = response.body()
+
+                    when (dataFromResponse!!.status) {
 
                         "ok" -> {
 
-                            // запрос удачный, но такого игрока нет - пустой массив с данными
-                            if (model.data!!.isEmpty()) {
-                                Log.i("proba", "такого игрока нет")
-                            }
-
-                            // данные игрока или массив игроков (в зависимости от результатов поиска)
-                            else {
-                                arrayListDatum.addAll(model.data!!)
+                            // если ответ содержит игроков - записываем в массив
+                            if (dataFromResponse.data!!.isNotEmpty()) {
+                                dataFromResponse.data!!.forEach {  arrayListPlayers.add(Player(it.accountId!!, it.nickname!!)) }
                             }
                         }
 
                         "error" -> {
 
-                            when (model.error!!.message) {
+                            when (dataFromResponse.error!!.message) {
 
                                 "INVALID_ACCOUNT_ID" -> {
                                     Log.i("proba", "неверный ID игрока")
@@ -66,48 +67,61 @@ class DataProvider {
                             Log.i("proba", "неизвестная ошибка статуса")
                         }
                     }
-                } else {
-
-                    Log.i("proba", "запрос выполнен неудачно")
                 }
-            } catch (e: Exception) {
+
+            }
+
+            catch (e: Exception) {
                 Log.i("proba", "ошибка выполнения запроса / нет инета")
             }
 
-            return@async arrayListDatum
+            return@async arrayListPlayers
         }
     }
 
 
 
+    // получение статистики игрока по Id
+    suspend fun getStatUser(account_id: Int): Deferred<Double?>{
 
+        return CoroutineScope(Dispatchers.IO).async {
 
-    // получение данных игрока по Id
-    suspend fun getDataUser(account_id: Int){
-
-        CoroutineScope(Dispatchers.IO).launch {
-
-            val responseData = RetrofitFactory.getApiService()
-
-            withContext(Dispatchers.Main){
+            var statUser = 0.0
 
                 try {
 
-                    if (responseData.getDataUser(account_id = account_id).isSuccessful){
-                        val dataUser = responseData.getDataUser(account_id = account_id).body()
+                    val responseData = RetrofitFactory.getApiServiceScalars().getStatUser(account_id = account_id)
 
-                        val userRating = dataUser!!.data!!.userData!!.globalRating
-                        Log.i("proba", "рейтинг игрока = $userRating")
+                    if (responseData.isSuccessful) {
 
+                        val bodyStatStr = responseData.body().toString()
+
+                        val jsonResponse = JSONObject(bodyStatStr.substring(bodyStatStr.indexOf("{"), bodyStatStr.lastIndexOf("}") + 1))
+                        val statDataPlayerStr = jsonResponse.getJSONObject("data")
+                                                             .getJSONObject("$account_id")
+                                                             .getJSONObject("statistics")
+                                                             .getJSONObject("all")
+                                                             .toString()
+
+                        //___________________________________________________________________________
+                        // сериализация в POJO
+
+                        val gsonStat = Gson()
+                        val statDataPlayerPojo = gsonStat.fromJson(statDataPlayerStr, All::class.java)
+
+                        val winsDouble = statDataPlayerPojo.wins!!.toDouble()
+                        val battlesDouble = statDataPlayerPojo.battles!!.toDouble()
+
+                        // приводим к виду - 2 знака после запятой
+                        statUser = BigDecimal((winsDouble/battlesDouble) * 100).setScale(2, RoundingMode.HALF_EVEN).toDouble()
                     }
-                    else{
-                        Log.i("proba", "ошибка получения рейтинга")
-                    }
+
                 }
                 catch (e: Exception){
                     Log.i("proba", "ошибка выполнения запроса / нет инета")
                 }
-            }
+
+            return@async statUser
         }
     }
 
