@@ -7,7 +7,7 @@ import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
 import com.vvp.wotstat.network.model.Player
 
 
-@StateStrategyType(value = AddToEndStrategy::class)         ///????????????  насчет появления тоста
+@StateStrategyType(value = AddToEndStrategy::class)        
 interface SearchView: MvpView {
 
     fun showProgress(show: Boolean)
