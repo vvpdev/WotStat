@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose
 
 import com.google.gson.annotations.SerializedName
 
-class All {
+class StatPlayer {
 
     @SerializedName("wins")
     @Expose
@@ -12,5 +12,4 @@ class All {
     @SerializedName("battles")
     @Expose
     var battles: Int? = null
-
 }

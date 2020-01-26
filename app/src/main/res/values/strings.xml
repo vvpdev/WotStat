@@ -1,11 +1,20 @@
 <resources>
     <string name="app_name">WotStat</string>
     <string name="enter_nickname">введите ник игрока</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="empty_enter">введите ник игрока</string>
     <string name="history_button_text">история запросов</string>
     <string name="title_request_history_frag">история запросов</string>
     <string name="title_search_frag">Статистика WOT</string>
+    <string name="delete_all_from_db">удалить все запросы</string>
+    <string name="answer_yes">да</string>
+    <string name="answer_no">нет</string>
+    <string name="question_delete_all_from_db">удалить все запросы?</string>
+    <string name="text_global_rating">личный рейтинг</string>
+    <string name="win_rate">победы</string>
+    <string name="battles_quantity">количество боев</string>
+    <string name="text_max_frags">max уничтожено за бой</string>
+    <string name="text_max_xp">max опыт за бой</string>
+    <string name="text_battle_avg_xp">средний опыт за бой</string>
+    <string name="text_avg_damage_blocked">средний заблок. урон</string>
 </resources>

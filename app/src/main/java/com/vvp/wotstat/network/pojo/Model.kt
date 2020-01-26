@@ -2,9 +2,6 @@ package com.vvp.wotstat.network.pojo
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import com.vvp.wotstat.network.pojo.Data
-import com.vvp.wotstat.network.pojo.Error
-import com.vvp.wotstat.network.pojo.Meta
 
 
 class Model {
@@ -21,6 +18,5 @@ class Model {
     @SerializedName("error")
     @Expose
     var error: Error? = null
-
 
 }

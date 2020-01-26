@@ -4,22 +4,16 @@ package com.vvp.wotstat.fragments
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
-import androidx.fragment.app.Fragment
-import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.arellomobile.mvp.MvpAppCompatFragment
 import com.arellomobile.mvp.presenter.InjectPresenter
-import com.vvp.wotstat.model.Player
-
 import com.vvp.wotstat.R
-import com.vvp.wotstat.adapters.AdapterListPlayers
+import com.vvp.wotstat.adapters.AdapterSearchPlayersList
+import com.vvp.wotstat.network.model.Player
 import com.vvp.wotstat.presenters.SearchPresenter
-import com.vvp.wotstat.providers.DataProvider
 import com.vvp.wotstat.views.SearchView
 import kotlinx.android.synthetic.main.fragment_search.*
 import kotlinx.coroutines.CoroutineScope
@@ -27,15 +21,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class SearchFragment : MvpAppCompatFragment(), AdapterListPlayers.OnItemClickListener, SearchView {
+class SearchFragment : MvpAppCompatFragment(), AdapterSearchPlayersList.OnItemClickListener, SearchView {
 
 
     @InjectPresenter
     lateinit var presenter: SearchPresenter
 
-    //список игроков
-    lateinit var adapter: AdapterListPlayers
-    lateinit var manager: LinearLayoutManager
+
+    private lateinit var adapter: AdapterSearchPlayersList
+    private lateinit var manager: LinearLayoutManager
 
 
     override fun onCreateView(
@@ -50,9 +44,7 @@ class SearchFragment : MvpAppCompatFragment(), AdapterListPlayers.OnItemClickLis
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
         activity!!.setTitle(R.string.title_search_frag)
-
 
         // меню тулбара только на этом фрагменте
         setHasOptionsMenu(true)
@@ -60,15 +52,18 @@ class SearchFragment : MvpAppCompatFragment(), AdapterListPlayers.OnItemClickLis
         //setup
         manager = LinearLayoutManager(activity!!.applicationContext, LinearLayoutManager.VERTICAL, false)
         recyclerListPlayers.layoutManager = manager
-        adapter = AdapterListPlayers(this)
+        adapter = AdapterSearchPlayersList(this)
         recyclerListPlayers.adapter = adapter
-
 
         // поиск
         buttonSearch.setOnClickListener { CoroutineScope(Dispatchers.Main).launch { dataToPresenter() } }
 
         // сортировка
         floatingButtonSort.setOnClickListener { adapter.sortPlayersList() }
+
+
+        // при возврате с экрана истории запросов
+        enterTextForSearch()
     }
 
 
@@ -122,6 +117,25 @@ class SearchFragment : MvpAppCompatFragment(), AdapterListPlayers.OnItemClickLis
     }
 
 
+
+    override fun enterTextForSearch() {
+
+        val textForSearch: String?
+
+        try {
+            textForSearch = arguments!!.getString("selectedItem")
+
+            editTextNickname.setText(textForSearch.toString())
+
+            CoroutineScope(Dispatchers.Main).launch { dataToPresenter() }
+        }
+        catch (e: Exception){
+            // значит textForSearch - пустое значение
+        }
+    }
+
+
+
     private suspend fun dataToPresenter(){
 
         val newNickname = editTextNickname.text.toString()
@@ -131,14 +145,15 @@ class SearchFragment : MvpAppCompatFragment(), AdapterListPlayers.OnItemClickLis
         }
         else{
             presenter.loadListPlayers(newNickname)
-            presenter.writeRequestToDB(requestText = newNickname)
         }
     }
 
 
+
+    // меню в тулбаре
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
 
-        inflater.inflate(R.menu.toolbar_menu, menu)
+        inflater.inflate(R.menu.search_frag_toolbar_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -149,8 +164,5 @@ class SearchFragment : MvpAppCompatFragment(), AdapterListPlayers.OnItemClickLis
         }
         return super.onOptionsItemSelected(item)
     }
-
-
-
 
 }

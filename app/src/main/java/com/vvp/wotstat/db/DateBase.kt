@@ -4,8 +4,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 
 
-@Database(entities = [RequestTextModel::class], version = 1, exportSchema = false)
+@Database(entities = [EntityDB::class], version = 1, exportSchema = false)
 abstract class DateBase: RoomDatabase() {
 
-abstract class dao: DAO
+    abstract fun methodsDao(): MethodsDAO
 }

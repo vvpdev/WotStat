@@ -2,8 +2,10 @@ package com.vvp.wotstat.providers
 
 import android.util.Log
 import com.google.gson.Gson
-import com.vvp.wotstat.model.Player
-import com.vvp.wotstat.network.pojo.All
+import com.vvp.wotstat.App
+import com.vvp.wotstat.network.model.Player
+import com.vvp.wotstat.network.pojo.StatPlayer
+import com.vvp.wotstat.network.pojo.playerDetails.PlayerDetails
 import com.vvp.wotstat.network.retrofit.RetrofitFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -12,12 +14,22 @@ import kotlinx.coroutines.async
 import org.json.JSONObject
 import java.math.BigDecimal
 import java.math.RoundingMode
+import javax.inject.Inject
 
 
 class DataProvider {
 
+    init {
+        App.diComponent!!.injectDataProvider(this)
+    }
+
+
+    @Inject
+    lateinit var retrofitFactory: RetrofitFactory
+
+
     // получение Id игрока по никнейму
-    suspend fun getIdUserAsync(name: String):  Deferred<ArrayList<Player>> {
+    suspend fun getIdUser(name: String):  Deferred<ArrayList<Player>> {
 
         return CoroutineScope(Dispatchers.IO).async {
 
@@ -25,7 +37,7 @@ class DataProvider {
 
             try {
 
-                val response = RetrofitFactory.getApiService().getIdUser(name)
+                val response = retrofitFactory.getApiService().getIdUser(name)
 
                 if (response.isSuccessful) {
 
@@ -68,29 +80,25 @@ class DataProvider {
                         }
                     }
                 }
-
             }
 
             catch (e: Exception) {
                 Log.i("proba", "ошибка выполнения запроса / нет инета")
             }
-
             return@async arrayListPlayers
         }
     }
 
 
 
-    // получение статистики игрока по Id
+    // получение статистики игрока по ID
     suspend fun getStatUser(account_id: Int): Deferred<Double?>{
 
         return CoroutineScope(Dispatchers.IO).async {
 
             var statUser = 0.0
 
-                try {
-
-                    val responseData = RetrofitFactory.getApiServiceScalars().getStatUser(account_id = account_id)
+                    val responseData = retrofitFactory.getApiServiceScalars().getStatUser(account_id = account_id)
 
                     if (responseData.isSuccessful) {
 
@@ -107,7 +115,7 @@ class DataProvider {
                         // сериализация в POJO
 
                         val gsonStat = Gson()
-                        val statDataPlayerPojo = gsonStat.fromJson(statDataPlayerStr, All::class.java)
+                        val statDataPlayerPojo = gsonStat.fromJson(statDataPlayerStr, StatPlayer::class.java)
 
                         val winsDouble = statDataPlayerPojo.wins!!.toDouble()
                         val battlesDouble = statDataPlayerPojo.battles!!.toDouble()
@@ -116,13 +124,45 @@ class DataProvider {
                         statUser = BigDecimal((winsDouble/battlesDouble) * 100).setScale(2, RoundingMode.HALF_EVEN).toDouble()
                     }
 
-                }
-                catch (e: Exception){
-                    Log.i("proba", "ошибка выполнения запроса / нет инета")
-                }
-
             return@async statUser
         }
     }
+
+
+
+    // получение подробных данных игрока по ID
+   suspend fun getPlayerData(account_id: Int): Deferred<PlayerDetails>{
+
+       return CoroutineScope(Dispatchers.IO).async {
+
+           var playerDetailsObj = PlayerDetails()
+
+           val responsePlayerDetails = retrofitFactory.getApiServiceScalars().getDataPlayer(account_id)
+
+           if (responsePlayerDetails.isSuccessful){
+
+               val responsePlayerDetailsSrt = responsePlayerDetails.body().toString()
+
+               Log.i("proba", responsePlayerDetailsSrt)
+
+               val jsonResponse = JSONObject(responsePlayerDetailsSrt.substring(responsePlayerDetailsSrt.indexOf("{"), responsePlayerDetailsSrt.lastIndexOf("}") + 1))
+
+               val playerDataStr = jsonResponse.getJSONObject("data")
+                                                       .getJSONObject("$account_id")
+                                                       .toString()
+
+               //___________________________________________________________________________
+               // сериализация в POJO
+
+               val gsonStat = Gson()
+               playerDetailsObj = gsonStat.fromJson(playerDataStr, PlayerDetails::class.java)
+           }
+
+           return@async playerDetailsObj
+       }
+   }
+
+
+
 
 }

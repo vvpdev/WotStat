@@ -1,10 +1,9 @@
-package com.vvp.wotstat.model
+package com.vvp.wotstat.network.model
 
 import android.os.Parcel
 import android.os.Parcelable
 
 data class Player(
-
 
     //Parcelable - тип для передачи кастомного класса через bundle
 

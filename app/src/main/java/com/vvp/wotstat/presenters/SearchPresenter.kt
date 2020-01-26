@@ -3,8 +3,8 @@ package com.vvp.wotstat.presenters
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
 import com.vvp.wotstat.App
-import com.vvp.wotstat.di.components.DIComponent
-import com.vvp.wotstat.di.components.DaggerDIComponent
+import com.vvp.wotstat.db.EntityDB
+import com.vvp.wotstat.db.MethodsDAO
 import com.vvp.wotstat.providers.DataProvider
 import com.vvp.wotstat.views.SearchView
 import kotlinx.coroutines.CoroutineScope
@@ -15,27 +15,32 @@ import javax.inject.Inject
 @InjectViewState
 class SearchPresenter: MvpPresenter<SearchView>() {
 
-
     @Inject
     lateinit var provider: DataProvider
 
+    @Inject
+    lateinit var methodsDAO: MethodsDAO
 
-    override fun onFirstViewAttach() {
-        super.onFirstViewAttach()
 
-        DaggerDIComponent.create().injectSearchPresenter(this)
+    override fun attachView(view: SearchView?) {
+        super.attachView(view)
+
+        App.diComponent!!.injectSearchPresenter(this)
     }
-
 
     // загрузка списка игроков
     suspend fun loadListPlayers(searchText: String)  {
+
+        // запись значения поиска в БД
+        insertPlayerToDB(newNickname = searchText)
+
 
         viewState.showProgress(true)
 
         CoroutineScope(Dispatchers.IO).launch {
 
             // загрузка id игроков
-            val listFromSearch = provider.getIdUserAsync(searchText).await()
+            val listFromSearch = provider.getIdUser(searchText).await()
 
             // загрузка статистики для каждого найденного игрока
             listFromSearch.forEach {
@@ -44,8 +49,7 @@ class SearchPresenter: MvpPresenter<SearchView>() {
                 it.statistics = stat!!
             }
 
-
-            // обновление UI - корутина для главного потока
+            // обновление UI
             CoroutineScope(Dispatchers.Main).launch {
 
                 if (listFromSearch.isNullOrEmpty()){
@@ -64,13 +68,14 @@ class SearchPresenter: MvpPresenter<SearchView>() {
 
 
     // запись запроса в БД
-    fun writeRequestToDB(requestText: String){
+    private fun insertPlayerToDB(newNickname: String){
 
+        val newEntityDB = EntityDB()
+        newEntityDB.searchText = newNickname
 
+        CoroutineScope(Dispatchers.IO).launch {
+            methodsDAO.insertPlayer(newEntityDB)
+        }
     }
-
-
-
-
 
 }

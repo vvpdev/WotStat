@@ -8,10 +8,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.vvp.wotstat.model.Player
+import com.vvp.wotstat.network.model.Player
 import com.vvp.wotstat.R
 
-class AdapterListPlayers (private var clickListener: OnItemClickListener) : RecyclerView.Adapter<AdapterListPlayers.ViewHolder>() {
+class AdapterSearchPlayersList (private var clickListener: OnItemClickListener) : RecyclerView.Adapter<AdapterSearchPlayersList.ViewHolder>() {
 
 
     //listener

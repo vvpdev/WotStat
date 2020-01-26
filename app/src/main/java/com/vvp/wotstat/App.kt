@@ -1,21 +1,23 @@
 package com.vvp.wotstat
 
 import android.app.Application
-import androidx.room.Room
-import com.vvp.wotstat.db.DateBase
+import android.content.Context
+import com.vvp.wotstat.di.components.DIComponent
+import com.vvp.wotstat.di.components.DaggerDIComponent
 
 class App: Application() {
 
 
     companion object{
-        lateinit var dateBase: DateBase
-    }
 
+        var diComponent: DIComponent? = null
+        var context: Context? = null
+    }
 
     override fun onCreate() {
         super.onCreate()
 
-        dateBase = Room.databaseBuilder(this, DateBase::class.java, "db_Requests").build()
+        diComponent = DaggerDIComponent.builder().build()
+        context = this
     }
-
 }

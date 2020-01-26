@@ -11,5 +11,4 @@ class Meta {
     @Expose
     var count: Int? = null
 
-
 }

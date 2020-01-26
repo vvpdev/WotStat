@@ -8,21 +8,17 @@ import retrofit2.http.Query
 
 interface ApiService {
 
-    // получение ID игрока (запрос с параметрами)
+    // получение ID игрока
     @GET("account/list/?application_id=${TextConst.appID}")
     suspend fun getIdUser(@Query("search") name: String): Response<Model>
 
-    // поля для расчета статистики игрока
+    // получение статистики игрока
     @GET("account/info/?application_id=${TextConst.appID}&fields=statistics.all.battles%2C+statistics.all.wins")
     suspend fun getStatUser(@Query("account_id") account_id: Int): Response<String>
 
 
-
-
     // получение данных игрока по ID
     @GET("account/info/?application_id=${TextConst.appID}")
-    suspend fun getDataUser(@Query("account_id") account_id: Int): Response<String>
-
-
+    suspend fun getDataPlayer(@Query("account_id") account_id: Int): Response<String>
 
 }
