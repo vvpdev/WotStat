@@ -30,6 +30,8 @@ class HistoryFragment : MvpAppCompatFragment(), HistoryView, AdapterHistoryPlaye
     private lateinit var adapter: AdapterHistoryPlayers
     private lateinit var manager: LinearLayoutManager
 
+    lateinit var deleteButton: MenuItem
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,7 +63,13 @@ class HistoryFragment : MvpAppCompatFragment(), HistoryView, AdapterHistoryPlaye
 
 
     override fun showHistoryList(arrayList: ArrayList<EntityDB>) {
-        adapter.setupAdapter(arrayList)
+
+        if(arrayList.isEmpty()){
+            deleteButton.isVisible = false
+        }
+        else{
+            adapter.setupAdapter(arrayList)
+        }
     }
 
 
@@ -86,22 +94,24 @@ class HistoryFragment : MvpAppCompatFragment(), HistoryView, AdapterHistoryPlaye
             adapter.updateDataFromDelete()
         }
 
-        builder.setNegativeButton(R.string.answer_no){dialog,which ->
+        builder.setNegativeButton(R.string.answer_no){ dialog, _ ->
             dialog.cancel()
         }
 
-        builder.setCancelable(false)
+        builder.setCancelable(true)
         val dialog: AlertDialog = builder.create()
         dialog.show()
     }
 
 
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
 
         inflater.inflate(R.menu.history_frag_toolbar_menu, menu)
+        deleteButton = menu.findItem(R.id.delete_all_from_db)
+
         super.onCreateOptionsMenu(menu, inflater)
     }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 

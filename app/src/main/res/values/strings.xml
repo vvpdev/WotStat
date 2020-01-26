@@ -5,7 +5,7 @@
     <string name="empty_enter">введите ник игрока</string>
     <string name="history_button_text">история запросов</string>
     <string name="title_request_history_frag">история запросов</string>
-    <string name="title_search_frag">Статистика WOT</string>
+    <string name="title_search_frag">Статистика WoT</string>
     <string name="delete_all_from_db">удалить все запросы</string>
     <string name="answer_yes">да</string>
     <string name="answer_no">нет</string>

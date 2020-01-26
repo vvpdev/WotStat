@@ -117,11 +117,21 @@ class DataProvider {
                         val gsonStat = Gson()
                         val statDataPlayerPojo = gsonStat.fromJson(statDataPlayerStr, StatPlayer::class.java)
 
-                        val winsDouble = statDataPlayerPojo.wins!!.toDouble()
-                        val battlesDouble = statDataPlayerPojo.battles!!.toDouble()
 
-                        // приводим к виду - 2 знака после запятой
-                        statUser = BigDecimal((winsDouble/battlesDouble) * 100).setScale(2, RoundingMode.HALF_EVEN).toDouble()
+                        if (statDataPlayerPojo.wins != null && statDataPlayerPojo.battles != null){
+
+                                if (statDataPlayerPojo.wins != 0 && statDataPlayerPojo.battles != 0){
+
+                                    val winsDouble = statDataPlayerPojo.wins!!.toDouble()
+                                    val battlesDouble = statDataPlayerPojo.battles!!.toDouble()
+
+                                    // приводим к виду - 2 знака после запятой
+                                    statUser = BigDecimal((winsDouble/battlesDouble) * 100).setScale(2, RoundingMode.HALF_EVEN).toDouble()
+                                }
+                        }
+                        else{
+                            statUser = 0.0
+                        }
                     }
 
             return@async statUser
