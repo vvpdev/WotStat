@@ -9,4 +9,5 @@
 
 min SDK: 24 (Android 7)
 
+
 ![Screenshot](WotStat.gif)
